@@ -109,12 +109,15 @@
    };
 
   let $formCEP = new DOM('[data-js="form-cep"]');
-  $formCEP.on('submit', handleSubmitFormCEP);
+  let $inputCEP = new DOM('[data-js="input-cep"]');
   let ajax = new XMLHttpRequest();
+  $formCEP.on('submit', handleSubmitFormCEP);
 
   function handleSubmitFormCEP(event) {
     event.preventDefault();
-    ajax.open('GET', 'https://cdn.apicep.com/file/apicep/[cep].json');
+    console.log($inputCEP.get()[0].value);
+    let url = "https://cdn.apicep.com/file/apicep/[cep].json".replace('[cep]', $inputCEP.get()[0].value);
+    ajax.open('GET', url);
     ajax.send();
     ajax.addEventListener('readystatechange', handleReadyStateChange);
   };
