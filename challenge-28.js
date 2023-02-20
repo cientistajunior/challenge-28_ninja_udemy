@@ -115,18 +115,28 @@
 
   function handleSubmitFormCEP(event) {
     event.preventDefault();
-    console.log($inputCEP.get()[0].value);
-    let url = "https://cdn.apicep.com/file/apicep/[cep].json".replace('[cep]', $inputCEP.get()[0].value);
+    let url = getUrl();
+    console.log('URL', url);
     ajax.open('GET', url);
     ajax.send();
     ajax.addEventListener('readystatechange', handleReadyStateChange);
   };
 
+  function getUrl() {
+    return "https://cdn.apicep.com/file/apicep/[cep].json".replace(
+      "[cep]",
+      $inputCEP.get()[0].value.replace(/\D/g, '')
+    );
+  };
+
   function handleReadyStateChange() {
-    if(ajax.readyState === 4 && ajax.status === 200) {
-      console.log('Popular formulário', ajax.responseText);
+    if(isRequestOk()) {
+      fillCEPFields();
     }
-    console.log('Carregando...');
+  };
+
+  function isRequestOk() {
+    return ajax.readyState === 4 && ajax.status === 200;
   };
 
 })(window, document);
