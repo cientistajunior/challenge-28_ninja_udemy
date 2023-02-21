@@ -130,13 +130,17 @@
   };
 
   function getUrl() {
-    return "https://cdn.apicep.com/file/apicep/[cep].json".replace('[cep]', $inputCEP.get()[0].value)
+    return replaceCEP("https://cdn.apicep.com/file/apicep/[cep].json");
+  };
+
+  function clearCEP() {
+    return $inputCEP.get()[0].value;
   };
 
   function handleReadyStateChange() {
     if(isRequestOk()) {
-      fillCEPFields();
       getMessage('ok');
+      fillCEPFields();
     }
   };
 
@@ -146,14 +150,26 @@
 
   function fillCEPFields() {
     let data = parseData();
-    if(!data)
+    if(!data) {
       getMessage('error');
+      data = clearData();
+    }
 
     $logradouro.get()[0].textContent = data.address;
     $bairro.get()[0].textContent = data.district;
     $estado.get()[0].textContent = data.state;
     $cidade.get()[0].textContent = data.city;
     $cep.get()[0].textContent = data.code;
+  };
+
+  function clearData() {
+    return {
+      address: '-',
+      district: '-',
+      state: '-',
+      city: '-',
+      code: '-'
+    }
   };
 
   function parseData() {
@@ -169,11 +185,15 @@
 
   function getMessage(type) {
     let  messages = {
-      loading: 'Buscando informações para o CEP [cep]...',
-      ok: 'Endereço referente ao CEP [cep]:',
-      error: 'Não encontramos o endereço para o CEP [cep].'
+      loading: replaceCEP('Buscando informações para o CEP [cep]...'),
+      ok: replaceCEP('Endereço referente ao CEP [cep]:'),
+      error: replaceCEP('Não encontramos o endereço para o CEP [cep].')
     };
     $status.get()[0].textContent = messages[type];
+  };
+
+  function replaceCEP(message) {
+    return message.replace('[cep]', clearCEP());
   };
 
 })(window, document);
