@@ -110,6 +110,12 @@
 
   let $formCEP = new DOM('[data-js="form-cep"]');
   let $inputCEP = new DOM('[data-js="input-cep"]');
+  let $logradouro = new DOM('[data-js="logradouro"]');
+  let $bairro = new DOM('[data-js="bairro"]');
+  let $estado = new DOM('[data-js="estado"]');
+  let $cidade = new DOM('[data-js="cidade"]');
+  let $cep = new DOM('[data-js="cep"]');
+  let $status = new DOM('[data-js="status"]');
   let ajax = new XMLHttpRequest();
   $formCEP.on('submit', handleSubmitFormCEP);
 
@@ -119,24 +125,55 @@
     console.log('URL', url);
     ajax.open('GET', url);
     ajax.send();
+    getMessage('loading');
     ajax.addEventListener('readystatechange', handleReadyStateChange);
   };
 
   function getUrl() {
-    return "https://cdn.apicep.com/file/apicep/[cep].json".replace(
-      "[cep]",
-      $inputCEP.get()[0].value.replace(/\D/g, '')
-    );
+    return "https://cdn.apicep.com/file/apicep/[cep].json".replace('[cep]', $inputCEP.get()[0].value)
   };
 
   function handleReadyStateChange() {
     if(isRequestOk()) {
       fillCEPFields();
+      getMessage('ok');
     }
   };
 
   function isRequestOk() {
     return ajax.readyState === 4 && ajax.status === 200;
+  };
+
+  function fillCEPFields() {
+    let data = parseData();
+    if(!data)
+      getMessage('error');
+
+    $logradouro.get()[0].textContent = data.address;
+    $bairro.get()[0].textContent = data.district;
+    $estado.get()[0].textContent = data.state;
+    $cidade.get()[0].textContent = data.city;
+    $cep.get()[0].textContent = data.code;
+  };
+
+  function parseData() {
+    let result;
+    try {
+      result = JSON.parse(ajax.responseText);
+    }
+    catch(e) {
+      result = null;
+    }
+    return result;
+  };
+
+  function getMessage(type) {
+    let  messages = {
+      loading: 'Buscando informações para o CEP [cep]...',
+      ok: 'Endereço referente ao CEP [cep]:',
+      error: 'Não encontramos o endereço para o CEP [cep].'
+    };
+    $status.get()[0].textContent = messages[type];
   };
 
 })(window, document);
